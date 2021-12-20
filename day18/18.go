@@ -47,7 +47,11 @@ func parseList(in string) [2]interface{} {
 	} else if in[1] == '[' {
 		i := findCloseIndex(in[1:]) + 1
 		arr[0] = parseList(in[1 : i+1])
-		arr[1] = in[i+2 : len(in)-1]
+		if in[i+2] == '[' {
+			arr[1] = parseList(in[i+2 : len(in)-1])
+		} else {
+			arr[1] = in[i+2]
+		}
 	} else {
 		a0, _ := strconv.Atoi(string(in[1]))
 		arr[0] = a0
@@ -78,7 +82,6 @@ func reduce(in [2]interface{}) [2]interface{} {
 	res := [2]interface{}{}
 
 	fmt.Println(in)
-	fmt.Println(len(in))
 
 	// explode
 	for i := range in {
@@ -96,8 +99,12 @@ func reduce(in [2]interface{}) [2]interface{} {
 				if !ok {
 					continue
 				}
-				for _, d := range c {
-					fmt.Println(d)
+				for l := range c {
+					d, ok := c[l].([2]interface{})
+					if !ok {
+						continue
+					}
+					fmt.Println("a:", d)
 				}
 			}
 		}
