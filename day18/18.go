@@ -8,6 +8,14 @@ import (
 	"strconv"
 )
 
+type Node struct {
+	Parent   *Node
+	Left     *Node
+	Right    *Node
+	LeftNum  int
+	RightNum int
+}
+
 func main() {
 	file, err := os.Open("./example.txt")
 	if err != nil {
@@ -16,49 +24,64 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	list := [][2]interface{}{}
+	list := []*Node{}
 
 	for scanner.Scan() {
 		line := scanner.Text()
-
-		list = append(list, parseList(line))
+		list = append(list, parseList(line, nil))
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(list[0])
-	result := [2]interface{}{}
-	// for i := 0; i < len(list)-1; i++ {
-	// 	result = reduce([2]interface{}{list[i], list[i+1]})
-	// }
-	result = reduce([2]interface{}{list[0], list[0+1]})
+	node := list[0]
+	for i := 1; i < len(list); i++ {
+		node := &Node{
+			Parent:   nil,
+			Left:     node,
+			Right:    list[i],
+			LeftNum:  -1,
+			RightNum: -1,
+		}
+		node.Left.Parent = node
+		node.Right.Parent = node
+		node = reduce(node)
+	}
 
-	fmt.Println(result)
+	fmt.Printf("%+v", node)
 }
 
-func parseList(in string) [2]interface{} {
-	arr := [2]interface{}{}
+func parseList(in string, parent *Node) *Node {
+	node := &Node{Parent: parent}
+
 	if len(in) == 5 {
 		a0, _ := strconv.Atoi(string(in[1]))
 		a1, _ := strconv.Atoi(string(in[3]))
-		arr = [2]interface{}{a0, a1}
+		node.LeftNum = a0
+		node.RightNum = a1
 	} else if in[1] == '[' {
 		i := findCloseIndex(in[1:]) + 1
-		arr[0] = parseList(in[1 : i+1])
+		node.Left = parseList(in[1:i+1], node)
 		if in[i+2] == '[' {
-			arr[1] = parseList(in[i+2 : len(in)-1])
+			node.Right = parseList(in[i+2:len(in)-1], node)
 		} else {
-			arr[1] = in[i+2]
+			a1, _ := strconv.Atoi(string(in[1+2]))
+			node.RightNum = a1
 		}
+
 	} else {
 		a0, _ := strconv.Atoi(string(in[1]))
-		arr[0] = a0
-		arr[1] = parseList(in[3 : len(in)-1])
+		node.LeftNum = a0
+		if in[3] == '[' {
+			node.Right = parseList(in[3:len(in)-1], node)
+		} else {
+			a1, _ := strconv.Atoi(string(in[3]))
+			node.RightNum = a1
+		}
 	}
 
-	return arr
+	return node
 }
 
 func findCloseIndex(in string) int {
@@ -78,40 +101,67 @@ func findCloseIndex(in string) int {
 	return 0
 }
 
-func reduce(in [2]interface{}) [2]interface{} {
-	res := [2]interface{}{}
+func reduce(node *Node) *Node {
+	n := findExplode(node, 0)
+	if n != nil {
+		node.explode(n)
+		node = reduce(node)
+	}
+	node.split()
 
-	fmt.Println(in)
+	return node
+}
 
-	// explode
-	for i := range in {
-		a, ok := in[i].([2]interface{})
-		if !ok {
-			continue
-		}
-		for j := range a {
-			b, ok := a[j].([2]interface{})
-			if !ok {
-				continue
-			}
-			for k := range b {
-				c, ok := b[k].([2]interface{})
-				if !ok {
-					continue
-				}
-				for l := range c {
-					d, ok := c[l].([2]interface{})
-					if !ok {
-						continue
-					}
-					fmt.Println("a:", d)
-				}
-			}
+func findExplode(node *Node, d int) *Node {
+	if d == 4 {
+		return node
+	}
+
+	if node.Left != nil {
+		return findExplode(node.Left, d+1)
+	}
+	if node.Right != nil {
+		return findExplode(node.Right, d+1)
+	}
+	return nil
+}
+
+func (node *Node) explode(n *Node) {
+	addToLeft(n, n.LeftNum)
+	addToRight(n, n.RightNum)
+	if n == n.Parent.Left {
+		n.Parent.Left = nil
+		n.Parent.LeftNum = 0
+	} else {
+		n.Parent.Right = nil
+		n.Parent.RightNum = 0
+	}
+}
+
+func addToLeft(node *Node, n int) {
+	if node.Parent != nil {
+		if node.Parent.Left == nil {
+			node.Parent.LeftNum += n
+		} else if node.Parent.Left != node {
+			node.Parent.Left.RightNum += n
+		} else {
+			addToLeft(node.Parent, n)
 		}
 	}
-	// explode
+}
 
-	// split
+func addToRight(node *Node, n int) {
+	if node.Parent != nil {
+		if node.Parent.Right == nil {
+			node.Parent.RightNum += n
+		} else if node.Parent.Right != node {
+			node.Parent.Right.LeftNum += n
+		} else {
+			addToRight(node.Parent, n)
+		}
+	}
+}
 
-	return res
+func (node *Node) split() {
+
 }
