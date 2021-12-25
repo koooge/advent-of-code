@@ -8,14 +8,6 @@ import (
 	"strconv"
 )
 
-type Node struct {
-	Parent   *Node
-	Left     *Node
-	Right    *Node
-	LeftNum  int
-	RightNum int
-}
-
 func main() {
 	file, err := os.Open("./input.txt")
 	if err != nil {
