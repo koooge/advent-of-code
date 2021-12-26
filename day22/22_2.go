@@ -8,104 +8,111 @@ import (
 	"strings"
 )
 
-type Range struct {
-	head int
-	tail int
-}
-
 type Cube struct {
-	x []Range
-	y []Range
-	z []Range
+	x1, x2 int
+	y1, y2 int
+	z1, z2 int
+	on     bool
+	cubes  []*Cube
 }
 
 func main() {
-	file, err := os.Open("./example.txt")
+	file, err := os.Open("./input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	cube := &Cube{}
+	cubes := []*Cube{}
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		var x, y, z Range
+		c := &Cube{}
 		if strings.HasPrefix(line, "on") {
-			fmt.Sscanf(line, "on x=%d..%d,y=%d..%d,z=%d..%d", &x.head, &x.tail, &y.head, &y.tail, &z.head, &z.tail)
-			cube.addRange(true, x, y, z)
+			fmt.Sscanf(line, "on x=%d..%d,y=%d..%d,z=%d..%d", &c.x1, &c.x2, &c.y1, &c.y2, &c.z1, &c.z2)
+			c.on = true
 		} else {
-			fmt.Sscanf(line, "off x=%d..%d,y=%d..%d,z=%d..%d", &x.head, &x.tail, &y.head, &y.tail, &z.head, &z.tail)
-			cube.addRange(false, x, y, z)
+			fmt.Sscanf(line, "off x=%d..%d,y=%d..%d,z=%d..%d", &c.x1, &c.x2, &c.y1, &c.y2, &c.z1, &c.z2)
 		}
+		ret := []*Cube{}
+
+		for _, cube := range cubes {
+			ob, isOverlap := findOverlap(c, cube)
+			if !isOverlap {
+				continue
+			}
+
+			if c.on && ob.on {
+				ob.on = false
+			} else if !c.on && !ob.on {
+				ob.on = true
+			} else {
+				ob.on = c.on
+			}
+			ret = append(ret, ob)
+		}
+
+		if c.on {
+			cubes = append(cubes, c)
+		}
+		cubes = append(cubes, ret...)
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cube)
-	fmt.Println(cube.count())
-}
-
-func (cube *Cube) addRange(on bool, x, y, z Range) {
-	cube.x = calcRange(cube.x, on, x)
-	cube.y = calcRange(cube.y, on, y)
-	cube.z = calcRange(cube.z, on, z)
-}
-
-func calcRange(ranges []Range, on bool, r Range) []Range {
-	if on {
-		if len(ranges) == 0 {
-			return append(ranges, r)
-		} else if r.head > ranges[len(ranges)-1].tail {
-			return append([]Range{r}, ranges...)
-		}
-
-		for i := 0; i < len(ranges); i++ {
-			if r.tail < ranges[i].head {
-				ranges = append(ranges, r)
-				break
-			}
-
-			if r.head < ranges[i].head && r.tail >= ranges[i].head && r.tail <= ranges[i].tail {
-				ranges[i].head = r.head
-			} else if r.head <= ranges[i].head && r.tail >= ranges[i].tail {
-				ranges[i].head = r.head
-				ranges[i].tail = r.tail // TODO: next Range
-			} else if r.head >= ranges[i].head && r.tail >= ranges[i].head && r.tail >= ranges[i].tail {
-				ranges[i].tail = r.tail
-			}
-		}
-	} else { // off
-		for i := 0; i < len(ranges); i++ {
-			if r.head <= ranges[i].head && r.tail > ranges[i].head {
-				ranges[i].head = r.tail + 1
-			}
-			if r.head < ranges[i].tail && r.tail >= ranges[i].tail {
-				ranges[i].tail = r.head - 1
-			}
+	num := 0
+	for _, cube := range cubes {
+		if cube.on {
+			num += cube.count()
+		} else {
+			num -= cube.count()
 		}
 	}
 
-	return ranges
+	fmt.Println(num)
+}
+
+func findOverlap(c1, c2 *Cube) (overlap *Cube, isOverlap bool) {
+	newx1 := max(c1.x1, c2.x1)
+	newx2 := min(c1.x2, c2.x2)
+	if newx1 > newx2 {
+		return
+	}
+
+	newy1 := max(c1.y1, c2.y1)
+	newy2 := min(c1.y2, c2.y2)
+	if newy1 > newy2 {
+		return
+	}
+
+	newz1 := max(c1.z1, c2.z1)
+	newz2 := min(c1.z2, c2.z2)
+	if newz1 > newz2 {
+		return
+	}
+
+	overlap = &Cube{on: c2.on, x1: newx1, x2: newx2, y1: newy1, y2: newy2, z1: newz1, z2: newz2}
+	isOverlap = true
+	return
+}
+
+func max(a, b int) int {
+	if b > a {
+		return b
+	}
+	return a
+}
+
+func min(a, b int) int {
+	if b < a {
+		return b
+	}
+	return a
 }
 
 func (cube *Cube) count() int {
-	var nx, ny, nz int
-
-	for _, r := range cube.x {
-		nx += r.tail - r.head + 1
-	}
-
-	for _, r := range cube.y {
-		ny += r.tail - r.head + 1
-	}
-
-	for _, r := range cube.z {
-		nz += r.tail - r.head + 1
-	}
-
-	return nx * ny * nz
+	return (cube.x2 - cube.x1 + 1) * (cube.y2 - cube.y1 + 1) * (cube.z2 - cube.z1 + 1)
 }
