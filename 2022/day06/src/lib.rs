@@ -16,40 +16,21 @@ pub fn solve_part1(inputs: Vec<String>) -> u32 {
     ret
 }
 
-// pub fn solve_part2(inputs: Vec<String>) -> String {
-//     let mut stacks: Vec<Vec<char>> = Vec::new();
+pub fn solve_part2(inputs: Vec<String>) -> u32 {
+    let input = inputs[0].clone();
+    let mut ret: u32 = 0;
 
-//     for input in inputs {
-//         let line = input.trim();
+    for i in 0..input.len() - 3 {
+        let seq = &input[i..=(i + 13)];
+        let uniq: HashSet<char> = seq.chars().collect();
+        if uniq.len() == 14 {
+            ret = i as u32 + 14;
+            break;
+        }
+    }
 
-//         if line.starts_with('[') {
-//             for (i, c) in input.chars().enumerate() {
-//                 if c == '[' || c == ']' || c == ' ' {
-//                     continue;
-//                 }
-
-//                 let index = (i - 1) / 4;
-//                 while stacks.len() <= index {
-//                     stacks.push(vec![]);
-//                 }
-//                 stacks[index].insert(0, c);
-//             }
-//         } else if line.starts_with("move") {
-//             let ops: Vec<&str> = input.split(' ').collect();
-//             let n: usize = ops[1].parse().unwrap();
-//             let from: usize = ops[3].parse().unwrap();
-//             let to: usize = ops[5].parse().unwrap();
-//             let mut moving: Vec<char> = Vec::new();
-//             for _ in 0..n {
-//                 moving.push(stacks[from - 1].pop().unwrap());
-//             }
-//             moving.reverse();
-//             stacks[to - 1].append(&mut moving);
-//         }
-//     }
-
-//     stacks.iter().map(|v| v.last().unwrap()).collect()
-// }
+    ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -104,21 +85,53 @@ mod tests {
         assert_eq!(result, 1140);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/test1.txt");
-    //     let result = solve_part2(inputs);
-    //     println!("{}", result);
-    //     assert_eq!(result, "MCD");
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/test1.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 19);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/input1.txt");
-    //     let result = solve_part2(inputs);
-    //     println!("{}", result);
-    //     assert_eq!(result, "QRQFHFWCL");
-    // }
+    #[test]
+    fn part2_case2() {
+        let inputs = read_file("./src/test2.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 23);
+    }
+
+    #[test]
+    fn part2_case3() {
+        let inputs = read_file("./src/test3.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 23);
+    }
+
+    #[test]
+    fn part2_case4() {
+        let inputs = read_file("./src/test4.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 29);
+    }
+
+    #[test]
+    fn part2_case5() {
+        let inputs = read_file("./src/test5.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 26);
+    }
+
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/input1.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 3495);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
         let contents = fs::read_to_string(file_path);
