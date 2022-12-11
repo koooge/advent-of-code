@@ -37,6 +37,42 @@ pub fn solve_part1(inputs: Vec<String>) -> u32 {
     visited.len() as u32
 }
 
+pub fn solve_part2(inputs: Vec<String>) -> u32 {
+    let mut rope: [[i32; 2]; 10] = [[0, 0]; 10];
+    let mut visited: HashSet<[i32; 2]> = HashSet::new();
+    visited.insert([0, 0]);
+
+    for input in inputs {
+        let direction: char = input.chars().nth(0).unwrap();
+        let n: u32 = input.split_at(2).1.parse().unwrap();
+        for _ in 0..n {
+            match direction {
+                'U' => rope[0][1] += 1,
+                'R' => rope[0][0] += 1,
+                'D' => rope[0][1] -= 1,
+                'L' => rope[0][0] -= 1,
+                _ => panic!(),
+            }
+
+            for i in 1..=9 {
+                let dx = rope[i-1][0] - rope[i][0];
+                let dy = rope[i-1][1] - rope[i][1];
+                if (dx.abs() >= 2 && dy.abs() > 0) || (dx.abs() > 0 && dy.abs() >= 2) {
+                    rope[i][0] = if dx > 0 { rope[i][0] + 1 } else { rope[i][0] - 1 };
+                    rope[i][1] = if dy > 0 { rope[i][1] + 1 } else { rope[i][1] - 1 };
+                } else if dx.abs() >= 2 {
+                    rope[i][0] = if dx > 0 { rope[i][0] + 1 } else { rope[i][0] - 1 };
+                } else if dy.abs() >= 2 {
+                    rope[i][1] = if dy > 0 { rope[i][1] + 1 } else { rope[i][1] - 1 };
+                }
+            }
+            visited.insert(rope[9]);
+        }
+    }
+
+    visited.len() as u32
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -58,21 +94,21 @@ mod tests {
         assert_eq!(result, 6212);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/test1.txt");
-    //     let result = solve_part2(inputs);
-    //     println!("{}", result);
-    //     assert_eq!(result, 8);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/test2.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 36);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/input1.txt");
-    //     let result = solve_part2(inputs);
-    //     println!("{}", result);
-    //     assert_eq!(result, 259308);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/input1.txt");
+        let result = solve_part2(inputs);
+        println!("{}", result);
+        assert_eq!(result, 2522);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
         let contents = fs::read_to_string(file_path);
