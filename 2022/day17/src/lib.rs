@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-pub fn solve_part1(inputs: &[String]) -> u64 {
-    let target: u64 = 2022;
-    let jet_patterns: Vec<char> = inputs[0].chars().collect();
+fn solve(input: String, target: u64) -> u64 {
+    let jet_patterns: Vec<char> = input.chars().collect();
     let mut rocks = [
         vec![(0, 0), (0, 1), (0, 2), (0, 3)],
         vec![(0, 1), (1, 0), (1, 1), (1, 2), (2, 1)],
@@ -80,6 +79,14 @@ pub fn solve_part1(inputs: &[String]) -> u64 {
     space.len() as u64
 }
 
+pub fn solve_part1(inputs: &[String]) -> u64 {
+    solve(inputs[0].clone(), 2022)
+}
+
+pub fn solve_part2(inputs: &[String]) -> u64 {
+    solve(inputs[0].clone(), 1000000000000)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -101,19 +108,19 @@ mod tests {
         assert_eq!(result, 3098);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/test1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 56000011);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 1514285714288);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 13071206703981);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 1525364431487);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
         let contents = fs::read_to_string(file_path);
