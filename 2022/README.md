@@ -15,3 +15,6 @@ $ cargo test
 # test with println!
 $ cargo test -- --nocapture
 ```
+
+## Achievements
+![aoc2022](./aoc2022.jpg)
