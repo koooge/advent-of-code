@@ -9,6 +9,10 @@ $ cd day01
 
 # Edit src/lib.rs
 
+# lint
+$ cargo check
+$ cargo clippy
+
 # test
 $ cargo test
 $ cargo watch -x test
