@@ -16,8 +16,20 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   return ret.into_iter().reduce(|acc, cur| acc * cur).unwrap();
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let time = inputs[0].split(":").last().unwrap().chars().filter(|c| !c.is_whitespace()).collect::<String>().parse::<usize>().unwrap();
+  let distance = inputs[1].split(":").last().unwrap().chars().filter(|c| !c.is_whitespace()).collect::<String>().parse::<usize>().unwrap();
+  let mut ret = 0;
+
+  for i in 1..time {
+    let traveled = i * (time - i);
+    if traveled > distance {
+      ret += 1;
+    }
+  }
+
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -38,19 +50,19 @@ mod tests {
       assert_eq!(result, 2756160);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 46);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 71503);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 78775051);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 34788142);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
