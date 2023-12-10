@@ -128,8 +128,124 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut ret: usize = 0;
+  let mut hands: HashMap<HandType, Vec<(Vec<usize>, usize)>> = HashMap::from([
+    (HandType::FiveCard, vec![]),
+    (HandType::FourCard, vec![]),
+    (HandType::FullHouse, vec![]),
+    (HandType::ThreeCard, vec![]),
+    (HandType::TwoPair, vec![]),
+    (HandType::OnePair, vec![]),
+    (HandType::HighCard, vec![]),
+  ]);
+
+  for input in inputs {
+    let (hand, b) = input.split_once(' ').unwrap();
+    let mut cards: Vec<usize> = vec![];
+    let mut map: HashMap<char, usize> = HashMap::new();
+    let mut joker_num = 0;
+    for c in hand.chars() {
+      match c {
+        'A' => cards.push(14),
+        'K' => cards.push(13),
+        'Q' => cards.push(12),
+        'J' => {
+          cards.push(1);
+          joker_num += 1;
+        },
+        'T' => cards.push(10),
+        _ => cards.push(c.to_string().parse::<usize>().unwrap()),
+      }
+      let count = map.entry(c).or_insert(0);
+      *count += 1;
+    }
+    let bid = b.parse::<usize>().unwrap();
+
+    let mut values = map.into_iter().map(|(_k, v)| v).collect::<Vec<usize>>();
+    values.sort();
+    if values.len() == 1 {
+      let sets = hands.entry(HandType::FiveCard).or_insert(vec![]);
+      sets.push((cards, bid));
+    } else if values.len() == 2 {
+      if values.get(0) == Some(&1) {
+        let handtype = if joker_num == 0 { HandType::FourCard } else { HandType::FiveCard }; // J x1 or x4
+        let sets = hands.entry(handtype).or_insert(vec![]);
+        sets.push((cards, bid));
+      } else if values.get(0) == Some(&2) {
+        let handtype = if joker_num == 0 { HandType::FullHouse } else { HandType::FiveCard }; // J > 0
+        let sets = hands.entry(handtype).or_insert(vec![]);
+        sets.push((cards, bid));
+      }
+    } else if values.len() == 3 {
+      if values.get(2) == Some(&3) {
+        let handtype = if joker_num == 0 { HandType::ThreeCard } else { HandType::FourCard }; // J x1
+        let sets = hands.entry(handtype).or_insert(vec![]);
+        sets.push((cards, bid));
+      } else if values.get(2) == Some(&2) {
+        let handtype = match joker_num {
+          0 => HandType::TwoPair,
+          1 => HandType::FullHouse,
+          2 => HandType::FourCard,
+          _ => unreachable!(),
+        };
+        let sets = hands.entry(handtype).or_insert(vec![]);
+        sets.push((cards, bid));
+      }
+    } else if values.len() == 4 {
+      let handtype = if joker_num == 0 { HandType::OnePair } else { HandType::ThreeCard }; // J x1 or x2
+      let sets = hands.entry(handtype).or_insert(vec![]);
+      sets.push((cards, bid));
+    } else if values.len() == 5 {
+      let handtype = if joker_num == 0 { HandType::HighCard } else { HandType::OnePair }; // J x1
+      let sets = hands.entry(handtype).or_insert(vec![]);
+      sets.push((cards, bid));
+    }
+  }
+
+  let mut rank: usize = 1;
+  let sorted_highcards = sort_cards(hands.get(&HandType::HighCard).unwrap());
+  for bid in sorted_highcards {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+  let sorted_onepairs = sort_cards(hands.get(&HandType::OnePair).unwrap());
+  for bid in sorted_onepairs {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+  let sorted_twopairs = sort_cards(hands.get(&HandType::TwoPair).unwrap());
+  for bid in sorted_twopairs {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+
+  let sorted_threecards = sort_cards(hands.get(&HandType::ThreeCard).unwrap());
+  for bid in sorted_threecards {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+
+  let sorted_fullhouses = sort_cards(hands.get(&HandType::FullHouse).unwrap());
+  for bid in sorted_fullhouses {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+
+  let sorted_fourcards = sort_cards(hands.get(&HandType::FourCard).unwrap());
+  for bid in sorted_fourcards {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+
+  let sourted_fivecards = sort_cards(hands.get(&HandType::FiveCard).unwrap());
+  for bid in sourted_fivecards {
+    ret += bid.1 * rank;
+    rank += 1;
+  }
+
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -150,19 +266,19 @@ mod tests {
       assert_eq!(result, 247961593);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 71503);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 5905);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 34788142);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 248750699);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
