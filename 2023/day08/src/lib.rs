@@ -32,8 +32,42 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut ret = 0;
+  let instructions = inputs.get(0).unwrap().chars().collect::<Vec<char>>();
+  let mut network: HashMap<&str, (String, String)> = HashMap::new();
+  let mut srcs: Vec<&str> = vec![];
+
+  for input in &inputs[2..] {
+    let (src, v) = input.split_once(" = ").unwrap();
+    let d = v.replace(&['(', ')'], "");
+    let dests = d.split_once(", ").unwrap();
+    network.insert(src, (dests.0.to_string(), dests.1.to_string()));
+    if src.ends_with('A') {
+      srcs.push(src);
+    }
+  }
+
+  loop {
+    let instruction = instructions.get(ret % instructions.len());
+    for i in 0..srcs.len() {
+      let dests = network.get(srcs[i]).unwrap();
+      let dest = match instruction {
+        Some('L') => &dests.0,
+        Some('R') => &dests.1,
+        _ => unreachable!(),
+      };
+
+      srcs[i] = dest;
+    }
+    ret += 1;
+    if srcs.iter().all(|x| x.ends_with('Z')) {
+      break;
+    }
+  }
+
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -61,19 +95,19 @@ mod tests {
       assert_eq!(result, 15989);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 5905);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test3.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 6);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 248750699);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 248750699);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
