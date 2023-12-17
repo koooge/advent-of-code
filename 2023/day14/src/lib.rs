@@ -26,8 +26,34 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret.iter().sum()
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut ret: Vec<usize> = vec![];
+  let mut rocks: Vec<Vec<char>> = vec![];
+  for input in inputs {
+    let row: Vec<char> = input.chars().collect();
+    rocks.push(row);
+  }
+
+  for i in 0..rocks[0].len() {
+    let mut next = 0;
+    for j in 0..rocks.len() {
+      match rocks[j][i] {
+        'O' => {
+          ret.push((rocks.len()) - next);
+          next += 1;
+        },
+        '#' => {
+          next = j + 1;
+        },
+        '.' => (),
+        _ => unreachable!(),
+      }
+    }
+  }
+
+  ret.iter().sum()
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -48,12 +74,12 @@ mod tests {
       assert_eq!(result, 110128);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 400);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 64);
+    }
 
     // #[test]
     // fn part2() {
