@@ -1,17 +1,35 @@
-pub fn solve_part1(inputs: &[String]) -> usize {
-  let mut map: Vec<Vec<char>> = vec![];
-  let mut energized: Vec<Vec<(bool, bool, bool, bool)>> = vec![vec![(false, false, false, false); inputs[0].len()]; inputs.len()];
+fn beam(map: &[Vec<char>], x: usize, y: usize, urdl: usize) -> usize {
+  let mut energized: Vec<Vec<(bool, bool, bool, bool)>> = vec![vec![(false, false, false, false); map[0].len()]; map.len()];
 
-  for input in inputs {
-    let row = input.chars().collect::<Vec<char>>();
-    map.push(row);
-  }
-  energized[0][0] = match map[0][0] {
-    '.' => (false, true, false, false),
-    '/' => (true, false, false, false),
-    '\\' => (false, false, true, false),
-    '|' => (true, true, true, false),
-    '-' => (false, true, false, false),
+  energized[y][x] = match urdl {
+    0 => match map[y][x] {
+      '.' | '|' => (true, false, false, false),
+      '/' => (false, true, false, false),
+      '\\' => (false, false, false, true),
+      '-' => (false, true, false, true),
+      _ => unreachable!(),
+    },
+    1 => match map[y][x] {
+      '.' | '-'=> (false, true, false, false),
+      '/' => (true, false, false, false),
+      '\\' => (false, false, true, false),
+      '|' => (true, true, true, false),
+      _ => unreachable!(),
+    },
+    2 => match map[y][x] {
+      '.' | '|'=> (false, false, true, false),
+      '/' => (false, false, false, true),
+      '\\' => (false, true, false, false),
+      '-' => (false, true, false, true),
+      _ => unreachable!(),
+    },
+    3 => match map[y][x] {
+      '.' | '-' => (false, false, false, true),
+      '/' => (false, false, true, false),
+      '\\' => (true, false, false, false),
+      '|' => (true, false, true, false),
+      _ => unreachable!(),
+    },
     _ => unreachable!(),
   };
 
@@ -183,9 +201,40 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-//   0
-// }
+pub fn solve_part1(inputs: &[String]) -> usize {
+  let mut map: Vec<Vec<char>> = vec![];
+
+  for input in inputs {
+    let row = input.chars().collect::<Vec<char>>();
+    map.push(row);
+  }
+
+  beam(&map, 0, 0, 1)
+}
+
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut map: Vec<Vec<char>> = vec![];
+  for input in inputs {
+    let row = input.chars().collect::<Vec<char>>();
+    map.push(row);
+  }
+
+  let mut ret = 0;
+  for i in 0..map[0].len() {
+    let downward = beam(&map, i, 0, 2);
+    ret = std::cmp::max(ret, downward);
+    let upward = beam(&map, i, map.len() - 1, 0);
+    ret = std::cmp::max(ret, upward);
+  }
+  for i in 1..map.len() -1 {
+    let rightward = beam(&map, 0, i, 1);
+    ret = std::cmp::max(ret, rightward);
+    let leftward = beam(&map, map.len() - 1, i, 3);
+    ret = std::cmp::max(ret, leftward);
+  }
+
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -213,19 +262,19 @@ mod tests {
       assert_eq!(result, 8551);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 145);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 51);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 261505);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 8754);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
