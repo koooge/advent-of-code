@@ -66,9 +66,81 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret.iter().sum()
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-//   0
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut rules: HashMap<String, Vec<(char, String, usize, String)>> = HashMap::new();
+
+  for input in inputs {
+    if input == "" {
+      break;
+    }
+
+    let (name, rest) = input.split_once('{').unwrap();
+    let mut rule: Vec<(char, String, usize, String)> = vec![];
+    let r: Vec<&str> = rest.split('}').next().unwrap().split(',').collect();
+    for cond in &r[0..r.len()-1] {
+      let (s, dest) = cond.split_once(':').unwrap();
+      let a = s.chars().nth(0).unwrap();
+      let cmp = s.chars().nth(1).unwrap();
+      let b = s[2..].parse::<usize>().unwrap();
+      rule.push((a, cmp.to_string(), b, dest.to_string()));
+    }
+    rule.push(('-', String::from("else"), 0, String::from(*r.last().unwrap())));
+    rules.insert(name.to_string(), rule);
+  }
+
+  let mut xmases: Vec<Vec<usize>> = vec![];
+  for i in 1..=4000 {
+    for j in 1..=4000 {
+      for k in 1..=4000 {
+        for l in 1..=4000 {
+          xmases.push(vec![i, j, k, l]);
+        }
+      }
+    }
+  }
+
+  let mut ret: Vec<usize> = vec![];
+  for xmas in xmases {
+    let hm: HashMap<char, usize> = HashMap::from([
+      ('x', xmas[0]),
+      ('m', xmas[1]),
+      ('a', xmas[2]),
+      ('s', xmas[3]),
+    ]);
+
+    let mut cur = "in";
+    while cur != "A" && cur != "R" {
+      let rule = rules.get(cur).unwrap();
+      for cond in rule {
+        let cmp: &str = &cond.1;
+        match cmp {
+          ">" => {
+            if hm.get(&cond.0).unwrap() > &cond.2 {
+              cur = &cond.3;
+              break;
+            }
+          },
+          "<" => {
+            if hm.get(&cond.0).unwrap() < &cond.2 {
+              cur = &cond.3;
+              break;
+            }
+          },
+          "else" => {
+            cur = &cond.3;
+            break;
+          },
+          _ => unreachable!(),
+        }
+      }
+    }
+    if cur == "A" {
+      ret.push(xmas.iter().sum());
+    }
+  }
+
+  ret.iter().sum()
+}
 
 #[cfg(test)]
 mod tests {
@@ -89,12 +161,12 @@ mod tests {
       assert_eq!(result, 330820);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 51);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 167409079868000);
+    }
 
     // #[test]
     // fn part2() {
