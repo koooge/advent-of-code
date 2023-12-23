@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -84,9 +85,66 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   ret
 }
 
-// pub fn solve_part2(inputs: &[String], step: usize) -> usize {
-//   0
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut bricks: Vec<Vec<Pos>> = vec![];
+
+  for input in inputs {
+    let (begin, end) = input.split_once('~').unwrap();
+    let b_pos: Vec<usize> = begin.split(',').filter_map(|x| x.parse().ok()).collect();
+    let e_pos: Vec<usize> = end.split(',').filter_map(|x| x.parse().ok()).collect();
+    let mut uniq: HashSet<Pos> = HashSet::new();
+    for x in b_pos[0].min(e_pos[0])..=b_pos[0].max(e_pos[0]) {
+      uniq.insert(Pos(x, b_pos[1], b_pos[2]));
+    }
+    for y in b_pos[1].min(e_pos[1])..=b_pos[1].max(e_pos[1]) {
+      uniq.insert(Pos(b_pos[0], y, b_pos[2]));
+    }
+    for z in b_pos[2].min(e_pos[2])..=b_pos[2].max(e_pos[2]) {
+      uniq.insert(Pos(b_pos[0], b_pos[1], z));
+    }
+    bricks.push(uniq.into_iter().collect());
+  }
+
+  bricks = wait_settled(&bricks);
+  let mut deps: HashMap<Vec<Pos>, (Vec<Vec<Pos>>, Vec<Vec<Pos>>)> = HashMap::new();
+  for brick in &bricks {
+    let mut depends: HashSet<Vec<Pos>> = HashSet::new();
+    let mut depended: HashSet<Vec<Pos>> = HashSet::new();
+
+    for pos in brick {
+      for b in &bricks {
+        if b == brick {
+          continue;
+        }
+        if b.iter().find(|&x| x.0 == pos.0 && x.1 == pos.1 && x.2 == pos.2 - 1).is_some() {
+          depends.insert(b.clone());
+        }
+        if b.iter().find(|&x| x.0 == pos.0 && x.1 == pos.1 && x.2 == pos.2 + 1).is_some() {
+          depended.insert(b.clone());
+        }
+      }
+    }
+
+    deps.insert(brick.clone(), (depends.into_iter().collect(), depended.into_iter().collect()));
+  }
+
+  let mut ret = 0;
+  for brick in bricks {
+    let (_, depended) = deps.get(&brick).unwrap();
+    let mut fall_bricks: Vec<Vec<Pos>> = vec![brick];
+    let mut stack = depended.clone();
+    while stack.len() > 0 {
+      let cur = stack.pop().unwrap();
+      let (depends, depended) = deps.get(&cur).unwrap();
+      if depends.iter().all(|x| fall_bricks.contains(x)) {
+        ret += 1;
+        stack.extend(depended.clone());
+        fall_bricks.push(cur);
+      }
+    }
+  }
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -128,19 +186,19 @@ mod tests {
       assert_eq!(result, 418);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 16);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 7);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 0);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 70702);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
