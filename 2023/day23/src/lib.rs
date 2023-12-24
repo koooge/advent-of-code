@@ -8,6 +8,13 @@ struct State {
   from: u8,
 }
 
+#[derive(Clone, Debug)]
+struct StateWithPath {
+  pos: Pos,
+  steps: usize,
+  path: Vec<Pos>,
+}
+
 pub fn solve_part1(inputs: &[String]) -> usize {
   let mut map: Vec<Vec<char>> = vec![];
   for input in inputs {
@@ -87,9 +94,96 @@ pub fn solve_part1(inputs: &[String]) -> usize {
   longests[goal_y][goal_x] as usize
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-//   0
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+  let mut map: Vec<Vec<char>> = vec![];
+  for input in inputs {
+    let mut row: Vec<char> = vec![];
+    for c in input.chars() {
+      row.push(c);
+    }
+    map.push(row);
+  }
+
+  let init = StateWithPath {
+    pos: Pos(1, 0),
+    steps: 0,
+    path: vec![Pos(0, 0)],
+  };
+  let mut stack: Vec<StateWithPath> = vec![init];
+  let goal = Pos(map[map.len()-1].len() - 2, map.len() - 1);
+  let mut paths: Vec<StateWithPath> = vec![];
+  while stack.len() > 0 {
+    let cur = stack.pop().unwrap();
+
+    if cur.pos == goal {
+      paths.push(cur);
+      continue;
+    }
+
+    // upward
+    if cur.pos.1 > 0 && !cur.path.contains(&Pos(cur.pos.0, cur.pos.1 - 1)) {
+      let (x, y) = (cur.pos.0, cur.pos.1 - 1);
+      if map[y][x] != '#' {
+        let mut path = cur.path.to_vec();
+        path.push(Pos(x, y));
+        let next = StateWithPath {
+          pos: Pos(x, y),
+          steps: cur.steps + 1,
+          path: path,
+        };
+        stack.push(next);
+      }
+    }
+    // rightward
+    if cur.pos.0 < map[cur.pos.1].len() - 1 &&  !cur.path.contains(&Pos(cur.pos.0 + 1, cur.pos.1)) {
+      let (x, y) = (cur.pos.0 + 1, cur.pos.1);
+      if map[y][x] != '#' {
+        let mut path = cur.path.to_vec();
+        path.push(Pos(x, y));
+        let next = StateWithPath {
+          pos: Pos(x, y),
+          steps: cur.steps + 1,
+          path: path,
+        };
+        stack.push(next);
+      }
+    }
+    // downward
+    if cur.pos.1 < map.len() - 1 &&  !cur.path.contains(&Pos(cur.pos.0, cur.pos.1 + 1)) {
+      let (x, y) = (cur.pos.0, cur.pos.1 + 1);
+      if map[y][x] != '#' {
+        let mut path = cur.path.to_vec();
+        path.push(Pos(x, y));
+        let next = StateWithPath {
+          pos: Pos(x, y),
+          steps: cur.steps + 1,
+          path: path,
+        };
+        stack.push(next);
+      }
+    }
+    // leftward
+    if cur.pos.0 > 0 &&  !cur.path.contains(&Pos(cur.pos.0 - 1, cur.pos.1)) {
+      let (x, y) = (cur.pos.0 - 1, cur.pos.1);
+      if map[y][x] != '#' {
+        let mut path = cur.path.to_vec();
+        path.push(Pos(x, y));
+        let next = StateWithPath {
+          pos: Pos(x, y),
+          steps: cur.steps + 1,
+          path: path,
+        };
+        stack.push(next);
+      }
+    }
+  }
+
+  let mut ret = 0;
+  for path in paths {
+    ret = ret.max(path.steps);
+  }
+  ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -110,19 +204,19 @@ mod tests {
       assert_eq!(result, 2210);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 7);
-    // }
+    #[test]
+    fn part2_case1() {
+      let inputs = read_file("./src/test1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 154);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 70702);
-    // }
+    #[test]
+    fn part2() {
+      let inputs = read_file("./src/input1.txt");
+      let result = solve_part2(&inputs);
+      assert_eq!(result, 70702);
+    }
 
     fn read_file(file_path: &str) -> Vec<String> {
       let contents = fs::read_to_string(file_path);
