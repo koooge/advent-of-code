@@ -1,16 +1,17 @@
 pub mod day01;
 
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use std::fs;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub fn read_file(file_path: &str) -> Vec<String> {
+    let contents = fs::read_to_string(file_path);
+    let mut ret: Vec<String> = vec![];
+    match contents {
+        Ok(contents) => {
+            for line in contents.lines() {
+                ret.push(line.to_string());
+            }
+        }
+        Err(why) => eprintln!("{}", why),
     }
+    ret
 }
