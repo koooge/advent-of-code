@@ -1,4 +1,6 @@
 # aoc_2024
+[![2024](https://github.com/koooge/advent-of-code/actions/workflows/2024.yml/badge.svg)](https://github.com/koooge/advent-of-code/actions/workflows/2024.yml)
+
 
 Let's go rust
 
