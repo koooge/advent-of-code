@@ -21,6 +21,33 @@ pub fn solve_part1(inputs: &[String]) -> isize {
     ret
 }
 
+pub fn solve_part2(inputs: &[String]) -> isize {
+    let mut ret = 0;
+    let mut left: Vec<isize> = vec![];
+    let mut right: Vec<isize> = vec![];
+
+    for input in inputs {
+        let lr: Vec<isize> = input
+            .split_whitespace()
+            .filter_map(|s| s.parse().ok())
+            .collect();
+        left.push(lr[0]);
+        right.push(lr[1]);
+    }
+
+    for l in left {
+        let mut n = 0;
+        for r in &right {
+            if l == *r {
+                n += 1;
+            }
+        }
+        ret += l * n;
+    }
+
+    ret
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -40,17 +67,17 @@ mod tests {
         assert_eq!(result, 1882714);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //   let inputs = read_file("./src/test2.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 281);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day01/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 31);
+    }
 
-    // #[test]
-    // fn part2() {
-    //   let inputs = read_file("./src/input1.txt");
-    //   let result = solve_part2(&inputs);
-    //   assert_eq!(result, 55291);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day01/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 19437052);
+    }
 }
