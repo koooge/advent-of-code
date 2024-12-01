@@ -30,14 +30,14 @@ mod tests {
     fn day01_part1_case1() {
         let inputs = read_file("./src/day01/test1.txt");
         let result = solve_part1(&inputs);
-        assert_eq!(result, 1882714);
+        assert_eq!(result, 11);
     }
 
     #[test]
     fn part1() {
         let inputs = read_file("./src/day01/input1.txt");
         let result = solve_part1(&inputs);
-        assert_eq!(result, 55607);
+        assert_eq!(result, 1882714);
     }
 
     // #[test]

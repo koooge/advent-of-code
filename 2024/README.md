@@ -3,15 +3,16 @@
 Let's go rust
 
 ```sh
-# lint
-$ cargo check
-$ cargo clippy
+# fmt and lint
+cargo check
+cargo fmt
+cargo clippy --all-targets --all-features -- -D warnings
 
 # test
-$ cargo test day01
-$ cargo watch -x 'test day01'
+cargo test day01
+cargo watch -x 'test day01'
 
 # test with println!
-$ cargo test -- --nocapture
-$ cargo watch -x 'test day01 -- --nocapture'
+cargo test -- --nocapture
+cargo watch -x 'test day01 -- --nocapture'
 ```
