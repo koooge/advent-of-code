@@ -8,10 +8,10 @@ $ cargo check
 $ cargo clippy
 
 # test
-$ cargo test
-$ cargo watch -x test
+$ cargo test day01
+$ cargo watch -x 'test day01'
 
 # test with println!
 $ cargo test -- --nocapture
-$ cargo watch -x 'test -- --nocapture'
+$ cargo watch -x 'test day01 -- --nocapture'
 ```
