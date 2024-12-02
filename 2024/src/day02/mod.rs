@@ -31,6 +31,36 @@ pub fn solve_part1(inputs: &[String]) -> isize {
     ret
 }
 
+pub fn solve_part2(inputs: &[String]) -> isize {
+    let mut ret = 0;
+
+    fn is_safe(numbers: &[isize]) -> bool {
+        let is_increasing = numbers.windows(2).all(|w| w[1] > w[0] && w[1] - w[0] <= 3);
+        let is_decreasing = numbers.windows(2).all(|w| w[1] < w[0] && w[0] - w[1] <= 3);
+        is_increasing || is_decreasing
+    }
+
+    for input in inputs {
+        let levels: Vec<isize> = input
+            .split_whitespace()
+            .filter_map(|s| s.parse().ok())
+            .collect();
+        if is_safe(&levels) {
+            ret += 1;
+        } else {
+            for i in 0..levels.len() {
+                let (left, right) = levels.split_at(i);
+                if is_safe(&[left, &right[1..]].concat()) {
+                    ret += 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    ret
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -50,17 +80,17 @@ mod tests {
         assert_eq!(result, 534);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/day01/test1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 31);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day02/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 4);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/day01/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 19437052);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day02/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 577);
+    }
 }
