@@ -80,6 +80,34 @@ pub fn solve_part1(inputs: &[String]) -> isize {
     ret
 }
 
+pub fn solve_part2(inputs: &[String]) -> isize {
+    let mut ret = 0;
+    let words: Vec<Vec<char>> = inputs.iter().map(|row| row.chars().collect()).collect();
+
+    for i in 0..words.len() - 2 {
+        for j in 0..words[i].len() - 2 {
+            if words[i + 1][j + 1] == 'A' {
+                if words[i][j] == 'M'
+                    && words[i + 2][j + 2] == 'S'
+                    && ((words[i][j + 2] == 'M' && words[i + 2][j] == 'S')
+                        || (words[i][j + 2] == 'S' && words[i + 2][j] == 'M'))
+                {
+                    ret += 1;
+                }
+                if words[i][j] == 'S'
+                    && words[i + 2][j + 2] == 'M'
+                    && ((words[i][j + 2] == 'M' && words[i + 2][j] == 'S')
+                        || (words[i][j + 2] == 'S' && words[i + 2][j] == 'M'))
+                {
+                    ret += 1;
+                }
+            }
+        }
+    }
+
+    ret
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -99,17 +127,17 @@ mod tests {
         assert_eq!(result, 2646);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/day04/test2.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 48);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day04/test2.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 9);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/day04/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 78683433);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day04/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 2000);
+    }
 }
