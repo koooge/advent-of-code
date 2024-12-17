@@ -1,4 +1,13 @@
-pub fn solve_part1(inputs: &[String]) -> usize {
+use std::collections::HashSet;
+
+type ScoresInfo = (
+    Vec<Vec<char>>,
+    Vec<Vec<Vec<usize>>>,
+    (usize, usize, usize),
+    (usize, usize),
+);
+
+fn get_scores(inputs: &[String]) -> ScoresInfo {
     let mut map: Vec<Vec<char>> = vec![];
     let mut scores: Vec<Vec<Vec<usize>>> = vec![];
     let mut start: (usize, usize, usize) = Default::default();
@@ -75,12 +84,89 @@ pub fn solve_part1(inputs: &[String]) -> usize {
         positions = po;
     }
 
+    (map, scores, start, end)
+}
+
+pub fn solve_part1(inputs: &[String]) -> usize {
+    let (_, scores, _, end) = get_scores(inputs);
     *scores[end.0][end.1].iter().min().unwrap()
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-//   0
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+    let (map, scores, start, e) = get_scores(inputs);
+    let (end_dir, _) = scores[e.0][e.1]
+        .iter()
+        .enumerate()
+        .min_by_key(|&(_, &v)| v)
+        .unwrap();
+
+    fn get_best_paths(score: usize, dest: &[usize], dst_dir: usize) -> Vec<usize> {
+        dest.iter()
+            .enumerate()
+            .filter(|&(i, &s)| {
+                let dst_score = if i == dst_dir {
+                    score - 1
+                } else {
+                    score - 1001
+                };
+                s == dst_score
+            })
+            .map(|(index, _)| index)
+            .collect()
+    }
+
+    let mut best_path: HashSet<(usize, usize)> = HashSet::new();
+    best_path.insert((e.0, e.1));
+    let mut positions: Vec<(usize, usize, usize)> = vec![(e.0, e.1, end_dir)];
+    while !positions.is_empty() {
+        let mut po: Vec<(usize, usize, usize)> = vec![];
+        for (y, x, dir) in positions {
+            let score = scores[y][x][dir];
+            // top
+            if y > 0 && map[y - 1][x] != '#' {
+                let best_paths = get_best_paths(score, &scores[y - 1][x], 2);
+                for p in best_paths {
+                    best_path.insert((y - 1, x));
+                    if y - 1 != start.0 || x != start.1 || x != start.2 {
+                        po.push((y - 1, x, p));
+                    }
+                }
+            }
+            // right
+            if x < map[y].len() - 1 && map[y][x + 1] != '#' {
+                let best_paths = get_best_paths(score, &scores[y][x + 1], 3);
+                for p in best_paths {
+                    best_path.insert((y, x + 1));
+                    if y != start.0 || x + 1 != start.1 || x != start.2 {
+                        po.push((y, x + 1, p));
+                    }
+                }
+            }
+            // bottom
+            if y < map.len() - 1 && map[y + 1][x] != '#' {
+                let best_paths = get_best_paths(score, &scores[y + 1][x], 0);
+                for p in best_paths {
+                    best_path.insert((y + 1, x));
+                    if y + 1 != start.0 || x != start.1 || x != start.2 {
+                        po.push((y + 1, x, p));
+                    }
+                }
+            }
+            // left
+            if x > 0 && map[y][x - 1] != '#' {
+                let best_paths = get_best_paths(score, &scores[y][x - 1], 1);
+                for p in best_paths {
+                    best_path.insert((y, x - 1));
+                    if y != start.0 || x - 1 != start.1 || x != start.2 {
+                        po.push((y, x - 1, p));
+                    }
+                }
+            }
+        }
+        positions = po;
+    }
+    best_path.len()
+}
 
 #[cfg(test)]
 mod tests {
@@ -108,17 +194,24 @@ mod tests {
         assert_eq!(result, 107468);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/day16/test3.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 105 + 207 + 306);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day16/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 45);
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/day16/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 1533076);
-    // }
+    #[test]
+    fn part2_case2() {
+        let inputs = read_file("./src/day16/test2.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 64);
+    }
+
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day16/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 533);
+    }
 }
