@@ -1,11 +1,5 @@
-pub fn solve_part1(inputs: &[String], len: usize, corrupted: usize) -> usize {
-    let mut space: Vec<Vec<char>> = vec![vec!['.'; len]; len];
+fn get_steps(space: &[Vec<char>], len: usize) -> usize {
     let mut steps: Vec<Vec<usize>> = vec![vec![usize::MAX; len]; len];
-    for input in inputs.iter().take(corrupted) {
-        let coodinate: Vec<usize> = input.split(",").filter_map(|s| s.parse().ok()).collect();
-        space[coodinate[1]][coodinate[0]] = '#';
-    }
-
     let mut positions: Vec<(usize, usize)> = vec![(0, 0)];
     steps[0][0] = 0;
     while !positions.is_empty() {
@@ -39,6 +33,29 @@ pub fn solve_part1(inputs: &[String], len: usize, corrupted: usize) -> usize {
     steps[len - 1][len - 1]
 }
 
+pub fn solve_part1(inputs: &[String], len: usize, corrupted: usize) -> usize {
+    let mut space: Vec<Vec<char>> = vec![vec!['.'; len]; len];
+    for input in inputs.iter().take(corrupted) {
+        let coordinate: Vec<usize> = input.split(",").filter_map(|s| s.parse().ok()).collect();
+        space[coordinate[1]][coordinate[0]] = '#';
+    }
+
+    get_steps(&space, len)
+}
+
+pub fn solve_part2(inputs: &[String], len: usize) -> String {
+    let mut space: Vec<Vec<char>> = vec![vec!['.'; len]; len];
+    for input in inputs {
+        let coordinate: Vec<usize> = input.split(",").filter_map(|s| s.parse().ok()).collect();
+        space[coordinate[1]][coordinate[0]] = '#';
+        let steps = get_steps(&space, len);
+        if steps == usize::MAX {
+            return input.to_string();
+        }
+    }
+    unreachable!()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -58,17 +75,17 @@ mod tests {
         assert_eq!(result, 286);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/day18/test2.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 117440);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day18/test1.txt");
+        let result = solve_part2(&inputs, 7);
+        assert_eq!(result, String::from("6,1"));
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/day18/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 533);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day18/input1.txt");
+        let result = solve_part2(&inputs, 71);
+        assert_eq!(result, String::from("20,64"));
+    }
 }
