@@ -190,7 +190,8 @@ pub fn solve_part1(inputs: &[String], at_least: usize) -> usize {
     ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> String {
+// pub fn solve_part2(inputs: &[String], at_least: usize) -> usize {
+//     0
 // }
 
 #[cfg(test)]
@@ -215,14 +216,17 @@ mod tests {
     // #[test]
     // fn part2_case1() {
     //     let inputs = read_file("./src/day20/test1.txt");
-    //     let result = solve_part2(&inputs, 7);
-    //     assert_eq!(result, String::from("6,1"));
+    //     let result = solve_part2(&inputs, 50);
+    //     assert_eq!(
+    //         result,
+    //         32 + 31 + 29 + 39 + 25 + 23 + 20 + 19 + 12 + 14 + 12 + 22 + 4 + 3
+    //     );
     // }
 
     // #[test]
     // fn part2() {
     //     let inputs = read_file("./src/day20/input1.txt");
-    //     let result = solve_part2(&inputs, 71);
-    //     assert_eq!(result, String::from("20,64"));
+    //     let result = solve_part2(&inputs, 100);
+    //     assert_eq!(result, 0);
     // }
 }
