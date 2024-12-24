@@ -33,6 +33,48 @@ pub fn solve_part1(inputs: &[String]) -> usize {
     ret.len()
 }
 
+pub fn solve_part2(inputs: &[String]) -> String {
+    let mut connections: HashMap<&str, Vec<&str>> = HashMap::new();
+    for input in inputs {
+        let kv: Vec<&str> = input.split('-').collect();
+        connections.entry(kv[0]).or_default().push(kv[1]);
+        connections.entry(kv[1]).or_default().push(kv[0]);
+    }
+
+    let mut largest: Vec<&str> = vec![];
+    let mut parties: Vec<Vec<&str>> = vec![];
+    for con in connections.keys() {
+        parties.push(vec![con]);
+    }
+
+    let is_party = |party: &[&str], com: &str| {
+        for p in party {
+            let vals = connections.get(p).unwrap();
+            if !vals.contains(&com) {
+                return false;
+            }
+        }
+        true
+    };
+
+    while let Some(mut party) = parties.pop() {
+        let key = party.last().unwrap();
+        let values = connections.get(key).unwrap();
+        for v in values {
+            if is_party(&party, v) {
+                party.push(v);
+                parties.push(party.clone());
+                let new_length = party.len();
+                if new_length > largest.len() {
+                    largest = party.clone();
+                }
+            }
+        }
+    }
+    largest.sort();
+    largest.join(",").to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -53,17 +95,20 @@ mod tests {
         assert_eq!(result, 1378);
     }
 
-    // #[test]
-    // fn part2_case1() {
-    //     let inputs = read_file("./src/day23/test2.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 23);
-    // }
+    #[test]
+    fn part2_case1() {
+        let inputs = read_file("./src/day23/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, String::from("co,de,ka,ta"));
+    }
 
-    // #[test]
-    // fn part2() {
-    //     let inputs = read_file("./src/day23/input1.txt");
-    //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, 2242);
-    // }
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day23/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(
+            result,
+            String::from("bs,ey,fq,fy,he,ii,lh,ol,tc,uu,wl,xq,xv")
+        );
+    }
 }
