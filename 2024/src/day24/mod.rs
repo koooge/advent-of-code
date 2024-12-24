@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 
-pub fn solve_part1(inputs: &[String]) -> usize {
+fn get_outs(inputs: &[String]) -> HashMap<String, usize> {
     let mut outs: HashMap<String, usize> = HashMap::new();
     let mut todos: VecDeque<Vec<&str>> = VecDeque::from(vec![]);
     let mut is_second = false;
@@ -32,7 +32,11 @@ pub fn solve_part1(inputs: &[String]) -> usize {
             _ => unreachable!(),
         };
     }
+    outs
+}
 
+pub fn solve_part1(inputs: &[String]) -> usize {
+    let outs = get_outs(inputs);
     let mut ret = 0;
     for i in 0..100 {
         let k = format!("z{:02}", i);
@@ -42,8 +46,32 @@ pub fn solve_part1(inputs: &[String]) -> usize {
             break;
         }
     }
-
     ret
+}
+
+pub fn solve_part2(inputs: &[String]) -> String {
+    let outs = get_outs(inputs);
+    let mut xb: usize = 0;
+    let mut yb: usize = 0;
+    let mut zb: usize = 0;
+    for i in 0..100 {
+        let n = format!("{:02}", i);
+        if let Some(z) = outs.get(&format!("z{}", n)) {
+            zb += z << i;
+            if let Some(x) = outs.get(&format!("x{}", n)) {
+                xb += x << i;
+            }
+            if let Some(y) = outs.get(&format!("y{}", n)) {
+                yb += y << i;
+            }
+        } else {
+            break;
+        }
+    }
+    let diff = (xb + yb) ^ zb;
+    println!("{:?} {:?} {:?}", xb, yb, zb);
+    println!("{:b}", diff);
+    "".to_string()
 }
 
 #[cfg(test)]
@@ -74,9 +102,9 @@ mod tests {
 
     // #[test]
     // fn part2_case1() {
-    //     let inputs = read_file("./src/day24/test1.txt");
+    //     let inputs = read_file("./src/day24/test3.txt");
     //     let result = solve_part2(&inputs);
-    //     assert_eq!(result, String::from("co,de,ka,ta"));
+    //     assert_eq!(result, String::from("z00,z01,z02,z05"));
     // }
 
     // #[test]
@@ -85,7 +113,7 @@ mod tests {
     //     let result = solve_part2(&inputs);
     //     assert_eq!(
     //         result,
-    //         String::from("bs,ey,fq,fy,he,ii,lh,ol,tc,uu,wl,xq,xv")
+    //         String::from("z00,z01,z02,z05")
     //     );
     // }
 }
