@@ -18,3 +18,6 @@ cargo watch -x 'test day01'
 cargo test -- --nocapture
 cargo watch -x 'test day01 -- --nocapture'
 ```
+
+## Achievements
+![aoc2024](./aoc2024.png)
