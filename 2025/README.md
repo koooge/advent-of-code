@@ -8,7 +8,7 @@ Let's go rust
 # fmt and lint
 cargo check
 cargo fmt
-cargo clippy --all-targets --all-features -- -D warnings
+
 
 # test
 cargo test day01
