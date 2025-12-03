@@ -89,7 +89,7 @@ mod tests {
     use crate::read_file;
 
     #[test]
-    fn day01_part1_case1() {
+    fn day02_part1_case1() {
         let inputs = read_file("./src/day02/test1.txt");
         let result = solve_part1(&inputs);
         assert_eq!(result, 1227775554);
@@ -103,28 +103,28 @@ mod tests {
     }
 
     #[test]
-    fn day01_part2_case1() {
+    fn day02_part2_case1() {
         let inputs = read_file("./src/day02/test1.txt");
         let result = solve_part2(&inputs);
         assert_eq!(result, 4174379265);
     }
 
     #[test]
-    fn day01_part2_case2() {
+    fn day02_part2_case2() {
         let inputs = vec![String::from("11-22")];
         let result = solve_part2(&inputs);
         assert_eq!(result, 33);
     }
 
     #[test]
-    fn day01_part2_case3() {
+    fn day02_part2_case3() {
         let inputs = vec![String::from("1009-1011")];
         let result = solve_part2(&inputs);
         assert_eq!(result, 1010);
     }
 
     #[test]
-    fn day01_part2_case4() {
+    fn day02_part2_case4() {
         let inputs = vec![String::from("1-10")];
         let result = solve_part2(&inputs);
         assert_eq!(result, 0);
