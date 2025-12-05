@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 pub fn solve_part1(inputs: &[String]) -> usize {
     let mut ret = 0;
     let mut fresh_ranges: Vec<(usize, usize)> = vec![];
@@ -30,7 +28,7 @@ pub fn solve_part1(inputs: &[String]) -> usize {
 }
 
 pub fn solve_part2(inputs: &[String]) -> usize {
-    let mut fresh_ids: BTreeSet<usize> = BTreeSet::new();
+    let mut fresh_ids: Vec<(usize, usize)> = vec![];
 
     for line in inputs {
         if !line.contains('-') {
@@ -41,13 +39,25 @@ pub fn solve_part2(inputs: &[String]) -> usize {
             .split_once('-')
             .map(|(x, y)| (x.parse().unwrap(), y.parse().unwrap()))
             .unwrap();
-
-        for i in a..=b {
-            fresh_ids.insert(i);
-        }
+        fresh_ids.push((a, b));
     }
+    fresh_ids.sort_by_key(|x| x.0);
 
-    fresh_ids.len()
+    let mut ret = 0;
+    let mut prev_end = 0;
+    for (begin, end) in fresh_ids {
+        if prev_end >= end {
+            continue;
+        }
+
+        if prev_end >= begin {
+            ret += end - prev_end;
+        } else {
+            ret += end - begin + 1;
+        }
+        prev_end = end;
+    }
+    ret
 }
 
 #[cfg(test)]
@@ -80,6 +90,6 @@ mod tests {
     fn part2() {
         let inputs = read_file("./src/day05/input1.txt");
         let result = solve_part2(&inputs);
-        assert_eq!(result, 821);
+        assert_eq!(result, 344771884978261);
     }
 }
