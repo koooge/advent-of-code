@@ -25,7 +25,7 @@ pub fn solve_part1(inputs: &[String]) -> usize {
 
 fn find_largest(batteries: &[usize], begin: usize, end: usize) -> (usize, usize) {
     let mut ret = (0, begin);
-    for i in begin..=end {
+    for (i, _) in batteries.iter().enumerate().take(end + 1).skip(begin) {
         if batteries[i] > ret.0 {
             ret = (batteries[i], i + 1);
         }
@@ -44,9 +44,9 @@ pub fn solve_part2(inputs: &[String]) -> usize {
         let mut largest = [0; 12];
 
         let mut ptr = 0;
-        for i in 0..12 {
+        for (i, item) in largest.iter_mut().enumerate() {
             let (joltage, new_ptr) = find_largest(&batteries, ptr, batteries.len() - (12 - i));
-            largest[i] = joltage;
+            *item = joltage;
             ptr = new_ptr;
         }
 
