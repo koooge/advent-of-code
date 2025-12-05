@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 pub fn solve_part1(inputs: &[String]) -> usize {
     let mut ret = 0;
     let mut fresh_ranges: Vec<(usize, usize)> = vec![];
@@ -27,8 +29,26 @@ pub fn solve_part1(inputs: &[String]) -> usize {
     ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+    let mut fresh_ids: BTreeSet<usize> = BTreeSet::new();
+
+    for line in inputs {
+        if !line.contains('-') {
+            continue;
+        }
+
+        let (a, b) = line
+            .split_once('-')
+            .map(|(x, y)| (x.parse().unwrap(), y.parse().unwrap()))
+            .unwrap();
+
+        for i in a..=b {
+            fresh_ids.insert(i);
+        }
+    }
+
+    fresh_ids.len()
+}
 
 #[cfg(test)]
 mod tests {
@@ -46,6 +66,20 @@ mod tests {
     fn part1() {
         let inputs = read_file("./src/day05/input1.txt");
         let result = solve_part1(&inputs);
+        assert_eq!(result, 821);
+    }
+
+    #[test]
+    fn day05_part2_case1() {
+        let inputs = read_file("./src/day05/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 14);
+    }
+
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day05/input1.txt");
+        let result = solve_part2(&inputs);
         assert_eq!(result, 821);
     }
 }
