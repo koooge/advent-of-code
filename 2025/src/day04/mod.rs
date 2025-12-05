@@ -1,10 +1,6 @@
-pub fn solve_part1(inputs: &[String]) -> usize {
+fn solve(grid: &[Vec<char>]) -> (usize, Vec<Vec<char>>) {
     let mut ret = 0;
-    let mut grid: Vec<Vec<char>> = vec![];
-
-    for line in inputs {
-        grid.push(line.chars().collect());
-    }
+    let mut new_grid: Vec<Vec<char>> = grid.to_vec();
 
     for y in 0..grid.len() {
         for x in 0..grid[0].len() {
@@ -44,15 +40,41 @@ pub fn solve_part1(inputs: &[String]) -> usize {
 
             if rolls < 4 {
                 ret += 1;
+                new_grid[y][x] = '.';
             }
         }
     }
 
-    ret
+    (ret, new_grid.to_vec())
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part1(inputs: &[String]) -> usize {
+    let mut grid: Vec<Vec<char>> = vec![];
+
+    for line in inputs {
+        grid.push(line.chars().collect());
+    }
+
+    let (rolls, _) = solve(&grid);
+    rolls
+}
+
+pub fn solve_part2(inputs: &[String]) -> usize {
+    let mut grid: Vec<Vec<char>> = vec![];
+
+    for line in inputs {
+        grid.push(line.chars().collect());
+    }
+
+    let mut total = 0;
+    let (mut rolls, mut new_grid) = solve(&grid);
+    total += rolls;
+    while rolls != 0 {
+        (rolls, new_grid) = solve(&new_grid);
+        total += rolls;
+    }
+    total
+}
 
 #[cfg(test)]
 mod tests {
@@ -71,5 +93,19 @@ mod tests {
         let inputs = read_file("./src/day04/input1.txt");
         let result = solve_part1(&inputs);
         assert_eq!(result, 1320);
+    }
+
+    #[test]
+    fn day04_part2_case1() {
+        let inputs = read_file("./src/day04/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 43);
+    }
+
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day04/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 8354);
     }
 }
