@@ -31,8 +31,47 @@ pub fn solve_part1(inputs: &[String]) -> usize {
     ret
 }
 
-// pub fn solve_part2(inputs: &[String]) -> usize {
-// }
+pub fn solve_part2(inputs: &[String]) -> usize {
+    let mut ret = 0;
+    let mut sheet: Vec<[char; 10000]> = vec![];
+
+    for line in inputs {
+        let mut s: [char; 10000] = [' '; 10000];
+        for (x, c) in line.chars().enumerate() {
+            s[x] = c;
+        }
+        sheet.push(s);
+    }
+
+    let mut nums: Vec<usize> = vec![];
+    for x in (0..sheet[sheet.len() - 1].len()).rev() {
+        let mut s = String::from("");
+        for row in sheet.iter().take(sheet.len() - 1) {
+            if row[x] == ' ' {
+                continue;
+            }
+            s.push(row[x]);
+        }
+        if s.is_empty() {
+            continue;
+        }
+        let num: usize = s.parse().unwrap();
+        nums.push(num);
+
+        let el = sheet[sheet.len() - 1][x];
+        if el == '+' {
+            let sum: usize = nums.iter().sum();
+            ret += sum;
+            nums = vec![];
+        } else if el == '*' {
+            let product: usize = nums.iter().product();
+            ret += product;
+            nums = vec![];
+        }
+    }
+
+    ret
+}
 
 #[cfg(test)]
 mod tests {
@@ -51,5 +90,19 @@ mod tests {
         let inputs = read_file("./src/day06/input1.txt");
         let result = solve_part1(&inputs);
         assert_eq!(result, 5595593539811);
+    }
+
+    #[test]
+    fn day06_part2_case1() {
+        let inputs = read_file("./src/day06/test1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 3263827);
+    }
+
+    #[test]
+    fn part2() {
+        let inputs = read_file("./src/day06/input1.txt");
+        let result = solve_part2(&inputs);
+        assert_eq!(result, 10153315705125);
     }
 }
