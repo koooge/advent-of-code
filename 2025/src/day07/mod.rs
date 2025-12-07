@@ -32,39 +32,32 @@ pub fn solve_part1(inputs: &[String]) -> usize {
 
 pub fn solve_part2(inputs: &[String]) -> usize {
     let mut diagram: Vec<Vec<char>> = vec![];
-    let mut timelines: Vec<Vec<usize>> = vec![];
+    let mut beams_x: Vec<usize> = vec![];
     for line in inputs {
         diagram.push(line.chars().collect());
         if let Some(idx) = line.find('S') {
-            timelines.push(vec![idx]);
+            beams_x.push(idx);
         }
     }
 
     for y in 0..diagram.len() - 1 {
-        let mut new_timelines: Vec<Vec<usize>> = vec![];
-        for timeline in timelines {
-            let x = timeline[timeline.len() - 1];
+        let mut new_beams_x: Vec<usize> = vec![];
+        for x in beams_x {
             if diagram[y + 1][x] == '^' {
                 if x > 0 {
-                    let mut new_timeline = timeline.to_vec();
-                    new_timeline.push(x - 1);
-                    new_timelines.push(new_timeline);
+                    new_beams_x.push(x - 1);
                 }
                 if x < diagram[y + 1].len() - 1 {
-                    let mut new_timeline = timeline.to_vec();
-                    new_timeline.push(x + 1);
-                    new_timelines.push(new_timeline);
+                    new_beams_x.push(x + 1);
                 }
             } else {
-                let mut new_timeline = timeline.to_vec();
-                new_timeline.push(x);
-                new_timelines.push(new_timeline);
+                new_beams_x.push(x);
             }
         }
-        timelines = new_timelines;
+        beams_x = new_beams_x;
     }
 
-    timelines.len()
+    beams_x.len()
 }
 
 #[cfg(test)]
