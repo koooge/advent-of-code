@@ -32,32 +32,41 @@ pub fn solve_part1(inputs: &[String]) -> usize {
 
 pub fn solve_part2(inputs: &[String]) -> usize {
     let mut diagram: Vec<Vec<char>> = vec![];
-    let mut beams_x: Vec<usize> = vec![];
+    let mut nums: Vec<usize> = vec![];
     for line in inputs {
         diagram.push(line.chars().collect());
         if let Some(idx) = line.find('S') {
-            beams_x.push(idx);
+            nums = vec![0; line.len()];
+            nums[idx] = 1;
         }
     }
 
     for y in 0..diagram.len() - 1 {
-        let mut new_beams_x: Vec<usize> = vec![];
-        for x in beams_x {
+        let mut new_nums = vec![0; nums.len()];
+        for x in 0..diagram[y].len() {
+            let c = diagram[y][x];
+            if c != 'S' && c != '|' {
+                continue;
+            }
+
             if diagram[y + 1][x] == '^' {
                 if x > 0 {
-                    new_beams_x.push(x - 1);
+                    diagram[y + 1][x - 1] = '|';
+                    new_nums[x - 1] += nums[x];
                 }
                 if x < diagram[y + 1].len() - 1 {
-                    new_beams_x.push(x + 1);
+                    diagram[y + 1][x + 1] = '|';
+                    new_nums[x + 1] += nums[x];
                 }
             } else {
-                new_beams_x.push(x);
+                diagram[y + 1][x] = '|';
+                new_nums[x] += nums[x];
             }
         }
-        beams_x = new_beams_x;
+        nums = new_nums;
     }
 
-    beams_x.len()
+    nums.iter().sum()
 }
 
 #[cfg(test)]
@@ -90,6 +99,6 @@ mod tests {
     fn part2() {
         let inputs = read_file("./src/day07/input1.txt");
         let result = solve_part2(&inputs);
-        assert_eq!(result, 1555);
+        assert_eq!(result, 12895232295789);
     }
 }
