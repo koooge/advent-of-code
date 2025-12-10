@@ -70,7 +70,7 @@ mod tests {
     use crate::read_file;
 
     #[test]
-    fn day08_part1_case1() {
+    fn day09_part1_case1() {
         let inputs = read_file("./src/day09/test1.txt");
         let result = solve_part1(&inputs);
         assert_eq!(result, 50);
@@ -84,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    fn day08_part2_case1() {
+    fn day09_part2_case1() {
         let inputs = read_file("./src/day09/test1.txt");
         let result = solve_part2(&inputs);
         assert_eq!(result, 24);
