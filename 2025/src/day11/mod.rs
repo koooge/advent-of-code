@@ -1,59 +1,49 @@
 use std::collections::HashMap;
 
-pub fn solve_part1(inputs: &[String]) -> usize {
+fn path_num(graph: &HashMap<String, Vec<String>>, start: &str, goal: &str) -> usize {
     let mut ret = 0;
-    let mut list: HashMap<String, Vec<String>> = HashMap::new();
-
-    for line in inputs {
-        let (k, v) = line.split_once(": ").unwrap();
-        let values: Vec<String> = v.split(' ').map(|s| s.to_string()).collect();
-        list.insert(k.to_string(), values);
-    }
-
-    let mut stack: Vec<String> = vec!["you".to_string()];
+    let mut stack: Vec<String> = vec![start.to_string()];
     while let Some(ptr) = stack.pop() {
-        let values = list.get(&ptr).unwrap();
+        let values = graph.get(&ptr).unwrap();
         for v in values {
-            if v == "out" {
+            if v == goal {
                 ret += 1;
+            } else if v == "out" {
+                continue;
             } else {
                 stack.push(v.to_string());
             }
         }
     }
-
     ret
 }
 
-pub fn solve_part2(inputs: &[String]) -> usize {
-    let mut ret = 0;
-    let mut list: HashMap<String, Vec<String>> = HashMap::new();
+pub fn solve_part1(inputs: &[String]) -> usize {
+    let mut graph: HashMap<String, Vec<String>> = HashMap::new();
 
     for line in inputs {
         let (k, v) = line.split_once(": ").unwrap();
         let values: Vec<String> = v.split(' ').map(|s| s.to_string()).collect();
-        list.insert(k.to_string(), values);
+        graph.insert(k.to_string(), values);
     }
 
-    let mut stack: Vec<(String, bool, bool)> = vec![("svr".to_string(), false, false)];
-    while let Some(ptr) = stack.pop() {
-        let values = list.get(&ptr.0).unwrap();
-        for v in values {
-            if v == "out" {
-                if ptr.1 && ptr.2 {
-                    ret += 1;
-                }
-            } else if v == "fft" {
-                stack.push((v.to_string(), true, ptr.2));
-            } else if v == "dac" {
-                stack.push((v.to_string(), ptr.1, true));
-            } else {
-                stack.push((v.to_string(), ptr.1, ptr.2));
-            }
-        }
+    path_num(&graph, "you", "out")
+}
+
+pub fn solve_part2(inputs: &[String]) -> usize {
+    let mut graph: HashMap<String, Vec<String>> = HashMap::new();
+
+    for line in inputs {
+        let (k, v) = line.split_once(": ").unwrap();
+        let values: Vec<String> = v.split(' ').map(|s| s.to_string()).collect();
+        graph.insert(k.to_string(), values);
     }
 
-    ret
+    let a = path_num(&graph, "svr", "fft");
+    let b = path_num(&graph, "fft", "dac");
+    let c = path_num(&graph, "dac", "out");
+
+    a * b * c
 }
 
 #[cfg(test)]
